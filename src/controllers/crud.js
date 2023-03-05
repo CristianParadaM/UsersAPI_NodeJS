@@ -20,8 +20,9 @@ crud.getByText = async (req, res) => {
         status: 'Activo',
         $or: [
             { "name": { $regex: text, $options: 'i' } },
+            { "email": { $regex: text, $options: 'i' } },
             { "lastname": { $regex: text, $options: 'i' } },
-            { "id": { $regex: text, $options: 'i' } }
+            { "_id": { $regex: text, $options: 'i' } }
         ]
     }, order);
     res.send(users)
