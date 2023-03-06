@@ -1,6 +1,7 @@
 const crud = {}
 
 const User = require('../models/User');
+const { BSON } = require('mongodb')
 
 crud.getAll = async (req, res) => {
     const user = await User.find({ status: 'Activo' });
@@ -16,16 +17,29 @@ crud.newUser = async (req, res) => {
 
 crud.getByText = async (req, res) => {
     const { text, order } = req.params;
-    let users = await getUsersBy({
-        status: 'Activo',
-        $or: [
-            { "name": { $regex: text, $options: 'i' } },
-            { "email": { $regex: text, $options: 'i' } },
-            { "lastname": { $regex: text, $options: 'i' } },
-            { "_id": { $regex: text, $options: 'i' } }
-        ]
-    }, order);
-    res.send(users)
+    try {
+        let id = new BSON.ObjectId(text)
+        let users = await getUsersBy({
+            status: 'Activo',
+            $or: [
+                { "name": { $regex: text, $options: 'i' } },
+                { "email": { $regex: text, $options: 'i' } },
+                { "lastname": { $regex: text, $options: 'i' } },
+                { "_id": id }
+            ]
+        }, order);
+        res.send(users)
+    } catch (err) {
+        let users = await getUsersBy({
+            status: 'Activo',
+            $or: [
+                { "name": { $regex: text, $options: 'i' } },
+                { "email": { $regex: text, $options: 'i' } },
+                { "lastname": { $regex: text, $options: 'i' } }
+            ]
+        }, order);
+        res.send(users)
+    }
 };
 
 crud.getByEmail = async (req, res) => {
